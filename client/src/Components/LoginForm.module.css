@@ -1,0 +1,17 @@
+.loginForm {
+  margin: 0 auto;
+  position: relative;
+  max-width: fit-content;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 20vh;
+}
+
+.inputGroup {
+  align-content: center;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
