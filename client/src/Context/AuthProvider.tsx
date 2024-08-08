@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { User } from '../App';
 import axios from 'axios';
+import useAxiosInterceptors from '../config/axiosConfig';
 
 
 export interface AuthContextType {
@@ -16,7 +17,7 @@ export interface AuthContextType {
   error: string | null;
 }
 
-interface LoginResponse {
+export interface LoginResponse {
   message: string;
   user?: User;
   accessToken: string;
@@ -76,48 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   }
 
-
-  useEffect(() => {
-    const interceptor = axios.interceptors.request.use(
-      async config => {
-        if(accessToken) {
-          config.headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-
-        return config;
-      },
-      error => {
-        return Promise.reject(error);
-      }
-    );
-
-    const responseInterceptor = axios.interceptors.response.use(
-      response => response,
-      async error => {
-        const originalRequest = error.config;
-        if(error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-          try {
-            const { data } = await axios.post<LoginResponse>('http://localhost:3003/api/refresh-token', {}, { withCredentials: true });
-            setAccessToken(data.accessToken);
-            originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-            return axios(originalRequest);
-
-          } catch (refreshError) {
-            logout();
-            return Promise.reject(refreshError);
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.request.eject(interceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
-  
-  }, [accessToken]);
+  useAxiosInterceptors(accessToken, setAccessToken, logout);
 
   useEffect(() => {
     const verifySession = async () => {
