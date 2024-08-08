@@ -37,7 +37,6 @@ const useAxiosInterceptors = ( accessToken: string | null, setAccessToken: (toke
             return axios(originalRequest);
           }
 
-          originalRequest._retry = true;
           try {
 
             refreshingToken.current = axios.post<LoginResponse>('http://localhost:3003/api/refresh-token', {}, { withCredentials: true })
